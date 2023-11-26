@@ -1,4 +1,4 @@
-interface Lecturer {
+type Lecturer = {
   name: string;
   surname: string;
   position: string;
@@ -6,7 +6,8 @@ interface Lecturer {
   experience: number;
   courses: string[];
   contacts: string[];
-}
+};
+
 enum Status {
   Inactive,
   Active,
@@ -79,6 +80,10 @@ class Level {
     this._description = description;
   }
 
+  get groups(): Group[] {
+    return this._groups;
+  }
+
   get name(): string {
     return this._name;
   }
@@ -102,10 +107,24 @@ class Group {
   private _students: Student[] = [];
   private _directionName: string;
   private _levelName: string;
+  private _area: string;
+  private _status: Status = Status.Inactive;
 
   constructor(directionName: string, levelName: string) {
     this._directionName = directionName;
     this._levelName = levelName;
+  }
+
+  get students(): Student[] {
+    return this._students;
+  }
+
+  get area(): string {
+    return this._area;
+  }
+
+  get status(): Status {
+    return this._status;
   }
 
   get directionName(): string {
@@ -120,43 +139,33 @@ class Group {
     this._students.push(student);
   }
 
-  removeStudent(studentId: string): void {
+  removeStudent(fullName: string): void {
     this._students = this._students.filter(
-      (student) => student.id !== studentId
+      (student: Student) => student.fullName !== fullName
     );
   }
 
   showPerformance(): Student[] {
     return this._students.sort(
-      (a, b) => b.getPerformanceRating() - a.getPerformanceRating()
+      (a: Student, b: Student) =>
+        b.getPerformanceRating() - a.getPerformanceRating()
     );
   }
 }
 
 class Student {
-  private _id: string;
   private _firstName: string;
   private _lastName: string;
   private _birthYear: number;
   private _grades: { workName: string; mark: number }[];
-  private _visits: { lesson: string; present: boolean }[];
+  private _visits: boolean[];
 
-  constructor(
-    id: string,
-    firstName: string,
-    lastName: string,
-    birthYear: number
-  ) {
-    this._id = id;
+  constructor(firstName: string, lastName: string, birthYear: number) {
     this._firstName = firstName;
     this._lastName = lastName;
     this._birthYear = birthYear;
     this._grades = [];
     this._visits = [];
-  }
-
-  get id(): string {
-    return this._id;
   }
 
   get fullName(): string {
@@ -172,13 +181,20 @@ class Student {
   get age(): number {
     return new Date().getFullYear() - this._birthYear;
   }
+  get grades(): { workName: string; mark: number }[] {
+    return this._grades;
+  }
+
+  get visits(): boolean[] {
+    return this._visits;
+  }
 
   setGrade(workName: string, mark: number): void {
     this._grades.push({ workName, mark });
   }
 
-  setVisit(lesson: string, present: boolean): void {
-    this._visits.push({ lesson, present });
+  setVisit(present: boolean): void {
+    this._visits.push(present);
   }
 
   getPerformanceRating(): number {
@@ -187,11 +203,24 @@ class Student {
     const averageGrade =
       this._grades.reduce((sum, grade) => sum + grade.mark, 0) /
       this._grades.length;
-    const attendanceCount = this._visits.filter(
-      (visit) => visit.present
-    ).length;
+    const attendanceCount = this._visits.filter((present) => present).length;
     const attendancePercentage = (attendanceCount / this._visits.length) * 100;
 
     return (averageGrade + attendancePercentage) / 2;
   }
 }
+
+// const studentA = new Student("Max", "Rozh", 1997);
+// studentA.setGrade("Math", 90);
+// studentA.setGrade("English", 90);
+// studentA.setVisit(true);
+
+// const studentB = new Student("Ivan", "Ivanov", 1998);
+// studentB.setGrade("Math", 100);
+// studentB.setGrade("English", 100);
+// studentB.setVisit(false);
+
+// const group = new Group("Web", "Level 1");
+
+// [studentA, studentB].forEach((student) => group.addStudent(student));
+// console.log(group.showPerformance());
