@@ -48,12 +48,6 @@ class Student {
   private _grades: Grade[] = []; // Опишите, как объект у которого есть поле workName и mark(оценка может быть выполненно или нет)
   private _visits: Visit[] = []; // Опишите, как объект у которого есть поле lesson (любое имя) и present
 
-  constructor(firstName: string, lastName: string, birthYear: number) {
-    this._firstName = firstName;
-    this._lastName = lastName;
-    this._birthYear = birthYear;
-  }
-
   set fullName(value: string) {
     [this._lastName, this._firstName] = value.split(" ");
   }
@@ -64,6 +58,12 @@ class Student {
 
   get age(): number {
     return new Date().getFullYear() - this._birthYear;
+  }
+
+  constructor(firstName: string, lastName: string, birthYear: number) {
+    this._firstName = firstName;
+    this._lastName = lastName;
+    this._birthYear = birthYear;
   }
 
   setGrade(grade: Grade): void {
@@ -92,7 +92,7 @@ class Student {
   }
 }
 
-// const s = new Student("John", "Doe", 2000);
-// s.setGrade({ workName: "hw1", mark: true });
+const s = new Student("John", "Doe", 2000);
+s.setGrade({ workName: "hw3", mark: true });
 // s.fullName;
 // s.badgeTypeMap;
