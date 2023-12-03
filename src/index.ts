@@ -1,197 +1,98 @@
-interface Lecturer {
-  name: string;
-  surname: string;
-  position: string;
-  company: string;
-  experience: number;
-  courses: string[];
-  contacts: string[];
-}
-enum Status {
-  Inactive,
-  Active,
-}
+type Grade = {
+  workName: string;
+  mark: boolean;
+};
 
-class School {
-  private _areas: Area[] = [];
-  private _lecturers: Lecturer[] = [];
+type Visit = {
+  lesson: string;
+  present: boolean;
+};
 
-  get areas(): Area[] {
-    return this._areas;
-  }
+const BadgeSize: {
+  single: string;
+  double: string;
+} = {
+  single: "4x3",
+  double: "4x6",
+};
 
-  get lecturers(): Lecturer[] {
-    return this._lecturers;
-  }
+const Print: {
+  standart: string;
+  fast: string;
+} = {
+  standart: "color",
+  fast: "zpl",
+};
 
-  addArea(area: Area): void {
-    this._areas.push(area);
-  }
-
-  removeArea(areaName: string): void {
-    this._areas = this._areas.filter((area: Area) => area.name !== areaName);
-  }
-
-  addLecturer(lecturer: Lecturer): void {
-    this._lecturers.push(lecturer);
-  }
-
-  removeLecturer(lecturerName: string): void {
-    this._lecturers = this._lecturers.filter(
-      (lecturer: Lecturer) => lecturer.name !== lecturerName
-    );
-  }
+enum BadgeTypesEnum {
+  COLOR = "color",
+  MONO = "mono",
 }
 
-class Area {
-  private _levels: Level[] = [];
-  private _name: string;
+type BadgeSizeType = keyof typeof BadgeSize;
+type PrintType = keyof typeof Print;
 
-  constructor(name: string) {
-    this._name = name;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
-  get levels(): Level[] {
-    return this._levels;
-  }
-
-  addLevel(level: Level): void {
-    this._levels.push(level);
-  }
-
-  removeLevel(levelName: string): void {
-    this._levels = this._levels.filter(
-      (level: Level) => level.name !== levelName
-    );
-  }
-}
-class Level {
-  private _groups: Group[] = [];
-  private _name: string;
-  private _description: string;
-
-  constructor(name: string, description: string) {
-    this._name = name;
-    this._description = description;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
-  get description(): string {
-    return this._description;
-  }
-
-  addGroup(group: Group): void {
-    this._groups.push(group);
-  }
-
-  removeGroup(groupName: string): void {
-    this._groups = this._groups.filter(
-      (group) => group.directionName !== groupName
-    );
-  }
-}
-
-class Group {
-  private _students: Student[] = [];
-  private _directionName: string;
-  private _levelName: string;
-
-  constructor(directionName: string, levelName: string) {
-    this._directionName = directionName;
-    this._levelName = levelName;
-  }
-
-  get directionName(): string {
-    return this._directionName;
-  }
-
-  get levelName(): string {
-    return this._levelName;
-  }
-
-  addStudent(student: Student): void {
-    this._students.push(student);
-  }
-
-  removeStudent(studentId: string): void {
-    this._students = this._students.filter(
-      (student) => student.id !== studentId
-    );
-  }
-
-  showPerformance(): Student[] {
-    return this._students.sort(
-      (a, b) => b.getPerformanceRating() - a.getPerformanceRating()
-    );
-  }
-}
+type BadgeTypeKey = `${BadgeSizeType}_${PrintType}`;
 
 class Student {
-  private _id: string;
+  badgeTypeMap = new Map<BadgeTypeKey, BadgeTypesEnum>([
+    ["single_fast", BadgeTypesEnum.COLOR],
+    ["single_standart", BadgeTypesEnum.COLOR],
+    ["double_fast", BadgeTypesEnum.MONO],
+    ["double_standart", BadgeTypesEnum.MONO],
+  ]);
+
   private _firstName: string;
   private _lastName: string;
   private _birthYear: number;
-  private _grades: { workName: string; mark: number }[];
-  private _visits: { lesson: string; present: boolean }[];
+  private _grades: Grade[] = []; // Опишите, как объект у которого есть поле workName и mark(оценка может быть выполненно или нет)
+  private _visits: Visit[] = []; // Опишите, как объект у которого есть поле lesson (любое имя) и present
 
-  constructor(
-    id: string,
-    firstName: string,
-    lastName: string,
-    birthYear: number
-  ) {
-    this._id = id;
+  constructor(firstName: string, lastName: string, birthYear: number) {
     this._firstName = firstName;
     this._lastName = lastName;
     this._birthYear = birthYear;
-    this._grades = [];
-    this._visits = [];
-  }
-
-  get id(): string {
-    return this._id;
-  }
-
-  get fullName(): string {
-    return `${this._firstName} ${this._lastName}`;
   }
 
   set fullName(value: string) {
-    const [firstName, lastName] = value.split(" ");
-    this._firstName = firstName;
-    this._lastName = lastName;
+    [this._lastName, this._firstName] = value.split(" ");
+  }
+
+  get fullName(): string {
+    return `${this._lastName} ${this._firstName}`;
   }
 
   get age(): number {
     return new Date().getFullYear() - this._birthYear;
   }
 
-  setGrade(workName: string, mark: number): void {
-    this._grades.push({ workName, mark });
+  setGrade(grade: Grade): void {
+    this._grades.push(grade);
   }
 
-  setVisit(lesson: string, present: boolean): void {
-    this._visits.push({ lesson, present });
+  setVisit(visit: Visit): void {
+    this._visits.push(visit);
   }
 
   getPerformanceRating(): number {
-    if (this._grades.length === 0) return 0;
+    const gradeValues = this._grades.map((grade) => (grade.mark ? 1 : 0));
+
+    if (!gradeValues.length) return 0;
 
     const averageGrade =
-      this._grades.reduce((sum, grade) => sum + grade.mark, 0) /
-      this._grades.length;
-    const attendanceCount = this._visits.filter(
-      (visit) => visit.present
-    ).length;
-    const attendancePercentage = (attendanceCount / this._visits.length) * 100;
+      gradeValues.reduce((sum, grade) => sum + grade, 0) / gradeValues.length;
+    const attendancePercentage =
+      this._visits.length > 0
+        ? (this._visits.filter((visit) => visit.present).length /
+            this._visits.length) *
+          100
+        : 0;
 
     return (averageGrade + attendancePercentage) / 2;
   }
 }
+
+// const s = new Student("John", "Doe", 2000);
+// s.setGrade({ workName: "hw1", mark: true });
+// s.fullName;
+// s.badgeTypeMap;
