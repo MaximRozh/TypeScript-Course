@@ -1,197 +1,129 @@
-interface Lecturer {
+// Створіть інтерфейс, який описує структуру об'єкта, що представляє калькулятор.
+// Калькулятор повинен мати методи для виконання арифметичних операцій: додавання, віднімання, множення та ділення.
+// Потім створіть функцію calculate, яка приймає об'єкт цього типу та виконує операцію і повертає результат.
+
+interface Calculator {
+  add: (a: number, b: number) => number;
+  subtract: (a: number, b: number) => number;
+  multiply: (a: number, b: number) => number;
+  divide: (a: number, b: number) => number;
+}
+
+class SimpleCalculator implements Calculator {
+  add(a: number, b: number): number {
+    return a + b;
+  }
+  subtract(a: number, b: number): number {
+    return a - b;
+  }
+  multiply(a: number, b: number): number {
+    return a * b;
+  }
+  divide = (a: number, b: number): number => a / b;
+}
+
+enum OperationsEnum {
+  ADD = "add",
+  SUBTRACT = "subtract",
+  MULTIPLY = "multiply",
+  DIVIDE = "divide",
+}
+
+type OperationFunction = (
+  calculator: Calculator,
+  a: number,
+  b: number
+) => number;
+
+type OperationMap = {
+  [key in OperationsEnum]: OperationFunction;
+};
+
+const operationMap: OperationMap = {
+  [OperationsEnum.ADD]: (calculator, a, b) => calculator.add(a, b),
+  [OperationsEnum.SUBTRACT]: (calculator, a, b) => calculator.subtract(a, b),
+  [OperationsEnum.MULTIPLY]: (calculator, a, b) => calculator.multiply(a, b),
+  [OperationsEnum.DIVIDE]: (calculator, a, b) => calculator.divide(a, b),
+};
+
+function calculate(
+  calculator: Calculator,
+  operation: OperationsEnum,
+  a: number,
+  b: number
+): number | never {
+  if (operation === OperationsEnum.DIVIDE && b === 0) {
+    throw new Error("Division by zero");
+  }
+
+  const operationFunc = operationMap[operation];
+  if (!operationFunc) {
+    throw new Error("Invalid operation");
+  }
+
+  return operationFunc(calculator, a, b);
+}
+
+const calculator = new SimpleCalculator();
+const resultAdd = calculate(calculator, OperationsEnum.ADD, 5, 3);
+console.log(`Add: 5 + 3 = ${resultAdd}`);
+const resultSubtract = calculate(calculator, OperationsEnum.SUBTRACT, 5, 3);
+console.log(`Subtract: 5 - 3 = ${resultSubtract}`);
+const resultMultiply = calculate(calculator, OperationsEnum.MULTIPLY, 5, 3);
+console.log(`Multiply: 5 * 3 = ${resultMultiply}`);
+const resultDivide = calculate(calculator, OperationsEnum.DIVIDE, 5, 3);
+console.log(`Divide: 5 / 3 = ${resultDivide}`);
+
+// Уявіть, що ви створюєте інтерфейси для веб-сервісу, який надає інформацію про книги.
+// Створіть інтерфейси Book, Author, і BookService, які описують структуру даних книжок, авторів і методи веб-сервісу для отримання інформації про книжки та авторів.
+// Потім створіть об'єкт bookService, який імітує роботу веб-сервісу, і використовуйте інтерфейси для отримання інформації про книги та авторів.
+
+interface Book {
+  id: number;
+  title: string;
+  authorId: number;
+}
+
+interface Author {
+  id: number;
   name: string;
-  surname: string;
-  position: string;
-  company: string;
-  experience: number;
-  courses: string[];
-  contacts: string[];
-}
-enum Status {
-  Inactive,
-  Active,
 }
 
-class School {
-  private _areas: Area[] = [];
-  private _lecturers: Lecturer[] = [];
+interface BookService {
+  getBook: (id: number) => Book;
+  getAuthor: (id: number) => Author;
+}
 
-  get areas(): Area[] {
-    return this._areas;
+class BookServiceImpl implements BookService {
+  private books: Book[] = [
+    { id: 1, title: "Book 1", authorId: 101 },
+    { id: 2, title: "Book 2", authorId: 102 },
+  ];
+
+  private authors: Author[] = [
+    { id: 101, name: "Author 1" },
+    { id: 102, name: "Author 2" },
+  ];
+
+  getBook(id: number): Book {
+    const book = this.books.find((book) => book.id === id);
+    if (!book) {
+      throw new Error("Book not found");
+    }
+    return book;
   }
 
-  get lecturers(): Lecturer[] {
-    return this._lecturers;
-  }
-
-  addArea(area: Area): void {
-    this._areas.push(area);
-  }
-
-  removeArea(areaName: string): void {
-    this._areas = this._areas.filter((area: Area) => area.name !== areaName);
-  }
-
-  addLecturer(lecturer: Lecturer): void {
-    this._lecturers.push(lecturer);
-  }
-
-  removeLecturer(lecturerName: string): void {
-    this._lecturers = this._lecturers.filter(
-      (lecturer: Lecturer) => lecturer.name !== lecturerName
-    );
+  getAuthor(id: number): Author {
+    const author = this.authors.find((author) => author.id === id);
+    if (!author) {
+      throw new Error("Author not found");
+    }
+    return author;
   }
 }
 
-class Area {
-  private _levels: Level[] = [];
-  private _name: string;
-
-  constructor(name: string) {
-    this._name = name;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
-  get levels(): Level[] {
-    return this._levels;
-  }
-
-  addLevel(level: Level): void {
-    this._levels.push(level);
-  }
-
-  removeLevel(levelName: string): void {
-    this._levels = this._levels.filter(
-      (level: Level) => level.name !== levelName
-    );
-  }
-}
-class Level {
-  private _groups: Group[] = [];
-  private _name: string;
-  private _description: string;
-
-  constructor(name: string, description: string) {
-    this._name = name;
-    this._description = description;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
-  get description(): string {
-    return this._description;
-  }
-
-  addGroup(group: Group): void {
-    this._groups.push(group);
-  }
-
-  removeGroup(groupName: string): void {
-    this._groups = this._groups.filter(
-      (group) => group.directionName !== groupName
-    );
-  }
-}
-
-class Group {
-  private _students: Student[] = [];
-  private _directionName: string;
-  private _levelName: string;
-
-  constructor(directionName: string, levelName: string) {
-    this._directionName = directionName;
-    this._levelName = levelName;
-  }
-
-  get directionName(): string {
-    return this._directionName;
-  }
-
-  get levelName(): string {
-    return this._levelName;
-  }
-
-  addStudent(student: Student): void {
-    this._students.push(student);
-  }
-
-  removeStudent(studentId: string): void {
-    this._students = this._students.filter(
-      (student) => student.id !== studentId
-    );
-  }
-
-  showPerformance(): Student[] {
-    return this._students.sort(
-      (a, b) => b.getPerformanceRating() - a.getPerformanceRating()
-    );
-  }
-}
-
-class Student {
-  private _id: string;
-  private _firstName: string;
-  private _lastName: string;
-  private _birthYear: number;
-  private _grades: { workName: string; mark: number }[];
-  private _visits: { lesson: string; present: boolean }[];
-
-  constructor(
-    id: string,
-    firstName: string,
-    lastName: string,
-    birthYear: number
-  ) {
-    this._id = id;
-    this._firstName = firstName;
-    this._lastName = lastName;
-    this._birthYear = birthYear;
-    this._grades = [];
-    this._visits = [];
-  }
-
-  get id(): string {
-    return this._id;
-  }
-
-  get fullName(): string {
-    return `${this._firstName} ${this._lastName}`;
-  }
-
-  set fullName(value: string) {
-    const [firstName, lastName] = value.split(" ");
-    this._firstName = firstName;
-    this._lastName = lastName;
-  }
-
-  get age(): number {
-    return new Date().getFullYear() - this._birthYear;
-  }
-
-  setGrade(workName: string, mark: number): void {
-    this._grades.push({ workName, mark });
-  }
-
-  setVisit(lesson: string, present: boolean): void {
-    this._visits.push({ lesson, present });
-  }
-
-  getPerformanceRating(): number {
-    if (this._grades.length === 0) return 0;
-
-    const averageGrade =
-      this._grades.reduce((sum, grade) => sum + grade.mark, 0) /
-      this._grades.length;
-    const attendanceCount = this._visits.filter(
-      (visit) => visit.present
-    ).length;
-    const attendancePercentage = (attendanceCount / this._visits.length) * 100;
-
-    return (averageGrade + attendancePercentage) / 2;
-  }
-}
+// // Використання
+// const bookService = new BookServiceImpl();
+// const book = bookService.getBook(1);
+// const author = bookService.getAuthor(book.authorId);
+// console.log(`Book: ${book.title}, Author: ${author.name}`);
