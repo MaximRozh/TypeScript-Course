@@ -82,30 +82,60 @@ interface Book {
   id: number;
   title: string;
   authorId: number;
+  yearPublished: number;
+  genre: string;
+  summary: string;
 }
 
 interface Author {
   id: number;
   name: string;
+  biography: string;
 }
 
 interface BookService {
-  getBook: (id: number) => Book;
+  getBookById: (id: number) => Book;
+  addBook: (book: Book) => void;
+  removeBookById: (id: number) => void;
+  searchBooks: (query: string) => Book[];
   getAuthor: (id: number) => Author;
+  searchAuthors: (query: string) => Author[];
 }
 
 class BookServiceImpl implements BookService {
   private books: Book[] = [
-    { id: 1, title: "Book 1", authorId: 101 },
-    { id: 2, title: "Book 2", authorId: 102 },
+    {
+      id: 1,
+      title: "1984",
+      authorId: 1,
+      yearPublished: 1949,
+      genre: "Fiction",
+      summary: "Cool Book 1",
+    },
+    {
+      id: 2,
+      title: "Fahrenheit 451",
+      authorId: 2,
+      yearPublished: 1953,
+      genre: "Science Fiction",
+      summary: "Cool Book 2",
+    },
   ];
 
   private authors: Author[] = [
-    { id: 101, name: "Author 1" },
-    { id: 102, name: "Author 2" },
+    {
+      id: 1,
+      name: "George Orwell",
+      biography: "Biography of Author 1",
+    },
+    {
+      id: 2,
+      name: "Ray Bradbury",
+      biography: "Biography of Author 2",
+    },
   ];
 
-  getBook(id: number): Book {
+  getBookById(id: number): Book | never {
     const book = this.books.find((book) => book.id === id);
     if (!book) {
       throw new Error("Book not found");
@@ -113,17 +143,38 @@ class BookServiceImpl implements BookService {
     return book;
   }
 
-  getAuthor(id: number): Author {
+  addBook(book: Book): void {
+    if (this.books.some((b) => b.id === book.id)) {
+      throw new Error("Book with this ID already exists");
+    }
+    this.books.push(book);
+  }
+
+  removeBookById(id: number): void {
+    this.books = this.books.filter((book) => book.id !== id);
+  }
+
+  searchBooks(query: string): Book[] {
+    return this.books.filter((book) =>
+      book.title.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  getAuthor(id: number): Author | never {
     const author = this.authors.find((author) => author.id === id);
     if (!author) {
       throw new Error("Author not found");
     }
     return author;
   }
+  searchAuthors(query: string): Author[] {
+    return this.authors.filter((author) =>
+      author.name.toLowerCase().includes(query.toLowerCase())
+    );
+  }
 }
 
-// // Використання
-// const bookService = new BookServiceImpl();
-// const book = bookService.getBook(1);
-// const author = bookService.getAuthor(book.authorId);
-// console.log(`Book: ${book.title}, Author: ${author.name}`);
+const bookService = new BookServiceImpl();
+const book = bookService.getBookById(1);
+const author = bookService.getAuthor(book.authorId);
+console.log(`Book: ${book.title}, Author: ${author.name}`);

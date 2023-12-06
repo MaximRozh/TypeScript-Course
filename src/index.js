@@ -52,20 +52,56 @@ console.log("Divide: 5 / 3 = ".concat(resultDivide));
 var BookServiceImpl = /** @class */ (function () {
     function BookServiceImpl() {
         this.books = [
-            { id: 1, title: "Book 1", authorId: 101 },
-            { id: 2, title: "Book 2", authorId: 102 },
+            {
+                id: 1,
+                title: "1984",
+                authorId: 1,
+                yearPublished: 1949,
+                genre: "Fiction",
+                summary: "Cool Book 1",
+            },
+            {
+                id: 2,
+                title: "Fahrenheit 451",
+                authorId: 2,
+                yearPublished: 1953,
+                genre: "Science Fiction",
+                summary: "Cool Book 2",
+            },
         ];
         this.authors = [
-            { id: 101, name: "Author 1" },
-            { id: 102, name: "Author 2" },
+            {
+                id: 1,
+                name: "George Orwell",
+                biography: "Biography of Author 1",
+            },
+            {
+                id: 2,
+                name: "Ray Bradbury",
+                biography: "Biography of Author 2",
+            },
         ];
     }
-    BookServiceImpl.prototype.getBook = function (id) {
+    BookServiceImpl.prototype.getBookById = function (id) {
         var book = this.books.find(function (book) { return book.id === id; });
         if (!book) {
             throw new Error("Book not found");
         }
         return book;
+    };
+    BookServiceImpl.prototype.addBook = function (book) {
+        if (this.books.some(function (b) { return b.id === book.id; })) {
+            throw new Error("Book with this ID already exists");
+        }
+        this.books.push(book);
+    };
+    BookServiceImpl.prototype.removeBookById = function (id) {
+        this.books = this.books.filter(function (book) { return book.id !== id; });
+    };
+    BookServiceImpl.prototype.searchBooks = function (query) {
+        return this.books.filter(function (book) {
+            return book.title.toLowerCase().includes(query.toLowerCase());
+        });
     };
     BookServiceImpl.prototype.getAuthor = function (id) {
         var author = this.authors.find(function (author) { return author.id === id; });
@@ -74,10 +110,14 @@ var BookServiceImpl = /** @class */ (function () {
         }
         return author;
     };
+    BookServiceImpl.prototype.searchAuthors = function (query) {
+        return this.authors.filter(function (author) {
+            return author.name.toLowerCase().includes(query.toLowerCase());
+        });
+    };
     return BookServiceImpl;
 }());
-// // Використання
-// const bookService = new BookServiceImpl();
-// const book = bookService.getBook(1);
-// const author = bookService.getAuthor(book.authorId);
-// console.log(`Book: ${book.title}, Author: ${author.name}`);
+var bookService = new BookServiceImpl();
+var book = bookService.getBookById(1);
+var author = bookService.getAuthor(book.authorId);
+console.log("Book: ".concat(book.title, ", Author: ").concat(author.name));
