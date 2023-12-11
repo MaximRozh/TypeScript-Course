@@ -1,197 +1,83 @@
-interface Lecturer {
-  name: string;
-  surname: string;
-  position: string;
-  company: string;
-  experience: number;
-  courses: string[];
-  contacts: string[];
+// Створіть класи Circle, Rectangle, Square і Triangle. У кожного з них є загальнодоступний метод calculateArea.
+// У кожної фігури є загальнодоступні властивості - колір і назва, які не можна змінювати після створення.
+// У Square і Rectangle зі свого боку є ще додатковий метод print, який виводить рядок із формулою розрахунку площі
+
+abstract class Shape {
+  readonly color: string;
+  readonly name: string;
+
+  constructor(color: string, name: string) {
+    this.color = color;
+    this.name = name;
+  }
+
+  abstract calculateArea(): number;
 }
-enum Status {
-  Inactive,
-  Active,
+
+interface Printable {
+  print(): string;
 }
 
-class School {
-  private _areas: Area[] = [];
-  private _lecturers: Lecturer[] = [];
+class Circle extends Shape {
+  protected radius: number;
 
-  get areas(): Area[] {
-    return this._areas;
+  constructor(radius: number, color: string) {
+    super(color, "Circle");
+    this.radius = radius;
   }
 
-  get lecturers(): Lecturer[] {
-    return this._lecturers;
-  }
-
-  addArea(area: Area): void {
-    this._areas.push(area);
-  }
-
-  removeArea(areaName: string): void {
-    this._areas = this._areas.filter((area: Area) => area.name !== areaName);
-  }
-
-  addLecturer(lecturer: Lecturer): void {
-    this._lecturers.push(lecturer);
-  }
-
-  removeLecturer(lecturerName: string): void {
-    this._lecturers = this._lecturers.filter(
-      (lecturer: Lecturer) => lecturer.name !== lecturerName
-    );
+  calculateArea(): number {
+    return Math.PI * this.radius * this.radius;
   }
 }
 
-class Area {
-  private _levels: Level[] = [];
-  private _name: string;
+class Rectangle extends Shape implements Printable {
+  protected width: number;
+  protected height: number;
 
-  constructor(name: string) {
-    this._name = name;
+  constructor(width: number, height: number, color: string) {
+    super(color, "Rectangle");
+    this.width = width;
+    this.height = height;
   }
 
-  get name(): string {
-    return this._name;
+  calculateArea(): number {
+    return this.width * this.height;
   }
 
-  get levels(): Level[] {
-    return this._levels;
-  }
-
-  addLevel(level: Level): void {
-    this._levels.push(level);
-  }
-
-  removeLevel(levelName: string): void {
-    this._levels = this._levels.filter(
-      (level: Level) => level.name !== levelName
-    );
-  }
-}
-class Level {
-  private _groups: Group[] = [];
-  private _name: string;
-  private _description: string;
-
-  constructor(name: string, description: string) {
-    this._name = name;
-    this._description = description;
-  }
-
-  get name(): string {
-    return this._name;
-  }
-
-  get description(): string {
-    return this._description;
-  }
-
-  addGroup(group: Group): void {
-    this._groups.push(group);
-  }
-
-  removeGroup(groupName: string): void {
-    this._groups = this._groups.filter(
-      (group) => group.directionName !== groupName
-    );
+  print(): string {
+    return `Rectangle Area = width (${this.width}) * height (${this.height})`;
   }
 }
 
-class Group {
-  private _students: Student[] = [];
-  private _directionName: string;
-  private _levelName: string;
+class Square extends Shape implements Printable {
+  protected side: number;
 
-  constructor(directionName: string, levelName: string) {
-    this._directionName = directionName;
-    this._levelName = levelName;
+  constructor(side: number, color: string) {
+    super(color, "Square");
+    this.side = side;
   }
 
-  get directionName(): string {
-    return this._directionName;
+  calculateArea(): number {
+    return this.side * this.side;
   }
 
-  get levelName(): string {
-    return this._levelName;
-  }
-
-  addStudent(student: Student): void {
-    this._students.push(student);
-  }
-
-  removeStudent(studentId: string): void {
-    this._students = this._students.filter(
-      (student) => student.id !== studentId
-    );
-  }
-
-  showPerformance(): Student[] {
-    return this._students.sort(
-      (a, b) => b.getPerformanceRating() - a.getPerformanceRating()
-    );
+  print(): string {
+    return `Square Area = side (${this.side}) * side (${this.side})`;
   }
 }
 
-class Student {
-  private _id: string;
-  private _firstName: string;
-  private _lastName: string;
-  private _birthYear: number;
-  private _grades: { workName: string; mark: number }[];
-  private _visits: { lesson: string; present: boolean }[];
+class Triangle extends Shape {
+  protected base: number;
+  protected height: number;
 
-  constructor(
-    id: string,
-    firstName: string,
-    lastName: string,
-    birthYear: number
-  ) {
-    this._id = id;
-    this._firstName = firstName;
-    this._lastName = lastName;
-    this._birthYear = birthYear;
-    this._grades = [];
-    this._visits = [];
+  constructor(base: number, height: number, color: string) {
+    super(color, "Triangle");
+    this.base = base;
+    this.height = height;
   }
 
-  get id(): string {
-    return this._id;
-  }
-
-  get fullName(): string {
-    return `${this._firstName} ${this._lastName}`;
-  }
-
-  set fullName(value: string) {
-    const [firstName, lastName] = value.split(" ");
-    this._firstName = firstName;
-    this._lastName = lastName;
-  }
-
-  get age(): number {
-    return new Date().getFullYear() - this._birthYear;
-  }
-
-  setGrade(workName: string, mark: number): void {
-    this._grades.push({ workName, mark });
-  }
-
-  setVisit(lesson: string, present: boolean): void {
-    this._visits.push({ lesson, present });
-  }
-
-  getPerformanceRating(): number {
-    if (this._grades.length === 0) return 0;
-
-    const averageGrade =
-      this._grades.reduce((sum, grade) => sum + grade.mark, 0) /
-      this._grades.length;
-    const attendanceCount = this._visits.filter(
-      (visit) => visit.present
-    ).length;
-    const attendancePercentage = (attendanceCount / this._visits.length) * 100;
-
-    return (averageGrade + attendancePercentage) / 2;
+  calculateArea(): number {
+    return (this.base * this.height) / 2;
   }
 }
