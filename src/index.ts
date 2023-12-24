@@ -1,5 +1,6 @@
 // Фільтрація масиву
-// Напишіть узагальнену функцію filterArray(array, condition), яка фільтрує масив елементів на основі наданої умови.
+// Напишіть узагальнену функцію filterArray(array, condition),
+// яка фільтрує масив елементів на основі наданої умови.
 function filterArray<T>(array: T[], condition: (element: T) => boolean): T[] {
   return array.filter((element) => condition(element));
 }
